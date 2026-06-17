@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zen — Your next step</title>
+<style>
+  :root{
+    --blue:#1B6FFF;
+    --blue-press:#1559D6;
+    --blue-deep:#0A2A6B;
+    --blue-bubble:#0E3FB0;       /* dark Ƶ assistant bubble */
+    --blue-bubble2:#1E6BFF;
+    --blue-tintbg:#E7F0FF;
+    --blue-tintborder:#BFD8FF;
+    --green:#2FC178;
+    --green-press:#23A465;
+    --green-tint:#E0F6EC;
+    --green-text:#1C925A;
+    --lilac-tint:#EEE9FF;
+    --lilac-text:#6B4FE0;
+    --amber:#F6A623;
+    --ink:#1F2A37;
+    --ink-soft:#5B6B7B;
+    --ink-faint:#9AA6B4;
+    --line:#E6ECF3;
+    --bg:#EFF5FE;
+    --card:#FFFFFF;
+    --shadow:0 1px 3px rgba(31,42,55,.06),0 6px 18px rgba(31,42,55,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 800px at 50% -10%, #16284d 0%, #0c1326 60%, #080d1c 100%);
+    color:var(--ink);display:flex;flex-direction:column;align-items:center;
+    min-height:100vh;padding:32px 16px 64px;gap:24px;
+  }
+  .stage-head{max-width:440px;text-align:center;color:#fff;}
+  .stage-head .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#7FA6FF;font-weight:700;margin-bottom:10px;}
+  .stage-head h1{font-size:23px;line-height:1.25;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;}
+  .stage-head p{font-size:14px;line-height:1.55;color:#AEB8CE;}
+  .flowmap{display:flex;align-items:center;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .flowmap button{font:inherit;cursor:pointer;border:1px solid rgba(127,166,255,.28);background:rgba(127,166,255,.08);color:#C7D3EE;font-size:11.5px;font-weight:600;padding:7px 12px;border-radius:20px;transition:.18s;white-space:nowrap;}
+  .flowmap button:hover{border-color:#7FA6FF;color:#fff;}
+  .flowmap button.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(27,111,255,.45);}
+  .flowmap .arrow{color:#41507A;font-size:13px;}
+
+  .device{width:392px;max-width:100%;background:#0b0f1c;border-radius:54px;padding:13px;box-shadow:0 30px 70px rgba(0,0,0,.55), inset 0 0 0 2px #2a3046;position:relative;}
+  .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:30px;background:#0b0f1c;border-radius:18px;z-index:60;}
+  .screen{position:relative;width:100%;height:788px;border-radius:42px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;}
+  .statusbar{position:absolute;top:0;left:0;right:0;height:48px;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:15px 32px 0;font-size:15px;font-weight:600;pointer-events:none;color:var(--ink);}
+  .statusbar .right{display:flex;gap:6px;align-items:center;font-size:13px;}
+
+  .page{display:none;flex:1;flex-direction:column;overflow:hidden;}
+  .page.show{display:flex;animation:slide .32s cubic-bezier(.22,.7,.3,1);}
+  @keyframes slide{from{opacity:0;transform:translateX(14px);}to{opacity:1;transform:translateX(0);}}
+  .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .scroll::-webkit-scrollbar{width:0;}
+
+  /* headers */
+  .hdr{padding:54px 20px 8px;display:flex;align-items:center;gap:12px;background:var(--bg);position:relative;z-index:5;}
+  .hdr .back{width:44px;height:44px;border-radius:50%;background:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--ink);box-shadow:0 1px 4px rgba(31,42,55,.08);flex-shrink:0;}
+  .hdr h1{font-size:27px;font-weight:800;letter-spacing:-.02em;}
+  .hdr.big{padding-bottom:4px;}
+  .hdr .step{margin-left:auto;font-size:13px;font-weight:700;color:var(--ink-faint);}
+
+  .progress{height:7px;border-radius:10px;background:#D4E2F5;margin:14px 20px 0;overflow:hidden;}
+  .progress > span{display:block;height:100%;border-radius:10px;background:var(--blue);}
+  .progress.green > span{background:var(--green);}
+
+  .body{padding:16px 18px 24px;display:flex;flex-direction:column;gap:14px;}
+
+  .h2{font-size:25px;font-weight:800;letter-spacing:-.02em;line-height:1.15;}
+  .lead{font-size:15.5px;line-height:1.5;color:var(--ink-soft);}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:18px;}
+  .card.flush{padding:0;overflow:hidden;}
+
+  /* buttons — pill */
+  .btn{width:100%;border:none;cursor:pointer;font:inherit;font-weight:700;font-size:16px;padding:17px;border-radius:40px;transition:.15s;display:flex;align-items:center;justify-content:center;gap:9px;}
+  .btn-blue{background:var(--blue);color:#fff;box-shadow:0 6px 18px rgba(27,111,255,.3);}
+  .btn-blue:active{transform:scale(.99);background:var(--blue-press);}
+  .btn-green{background:var(--green);color:#fff;box-shadow:0 6px 18px rgba(47,193,120,.3);}
+  .btn-green:active{transform:scale(.99);background:var(--green-press);}
+  .btn-white{background:#fff;color:var(--blue);border:1.5px solid var(--line);}
+  .btn-row{display:flex;gap:12px;}
+  .btn-row .btn{flex:1;}
+  .btn-sm{padding:13px 22px;font-size:14.5px;width:auto;border-radius:30px;}
+
+  /* Ƶ assistant bubble */
+  .zbubble{background:linear-gradient(105deg,var(--blue-bubble),var(--blue-bubble2));color:#fff;border-radius:18px;padding:15px 16px 15px 15px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 8px 22px rgba(14,63,176,.32);}
+  .zmark{width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.16);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;font-style:italic;}
+  .zbubble .ztext{font-size:14.5px;line-height:1.5;font-weight:500;}
+  .zbubble .ztext b{font-weight:800;}
+
+  /* tag pills */
+  .tag{display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:9px;border:1px solid;}
+  .tag-green{background:var(--green-tint);color:var(--green-text);border-color:#BfeBD2;}
+  .tag-lilac{background:var(--lilac-tint);color:var(--lilac-text);border-color:#D8CCFA;}
+  .tag-blue{background:var(--blue-tintbg);color:var(--blue);border-color:var(--blue-tintborder);}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:20px;}
+  .pill-amber{background:#FDF0D9;color:#B97F12;}
+  .pill-green{background:var(--green-tint);color:var(--green-text);}
+
+  .row{display:flex;align-items:center;gap:13px;}
+  .row .ic{width:42px;height:42px;border-radius:12px;background:var(--blue-tintbg);color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+  .row .tx{flex:1;}
+  .row .tx .t{font-size:15.5px;font-weight:700;color:var(--ink);}
+  .row .tx .s{font-size:13px;color:var(--ink-faint);margin-top:2px;}
+  .meta{display:flex;align-items:center;gap:9px;font-size:14.5px;color:var(--ink-soft);}
+  .meta .mi{width:20px;text-align:center;}
+  .divider{height:1px;background:var(--line);margin:2px 0;}
+
+  /* info banner (matches their style) */
+  .info{background:var(--blue-tintbg);border:1.5px solid var(--blue-tintborder);border-radius:16px;padding:15px;display:flex;gap:12px;align-items:flex-start;}
+  .info .i{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .info p{font-size:14px;line-height:1.5;color:var(--ink);}
+
+  /* hero countdown card */
+  .next-card{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow);}
+  .next-card .strip{height:6px;background:var(--blue);}
+  .next-card .inner{padding:20px;}
+  .next-card .eb{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:9px;display:flex;align-items:center;gap:6px;}
+  .next-card h3{font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.2;margin-bottom:7px;}
+  .next-card p.sub{font-size:14.5px;color:var(--ink-soft);line-height:1.5;margin-bottom:16px;}
+  .countdown{display:flex;align-items:center;gap:12px;background:var(--blue-tintbg);border-radius:14px;padding:13px 15px;margin-bottom:16px;}
+  .countdown .num{font-size:30px;font-weight:800;color:var(--blue);line-height:1;}
+  .countdown .lbl{font-size:13px;color:var(--ink-soft);line-height:1.35;}
+
+  /* chips */
+  .chips{display:flex;flex-wrap:wrap;gap:9px;}
+  .chip{font-size:13.5px;font-weight:700;padding:10px 15px;border-radius:30px;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink-soft);transition:.15s;user-select:none;display:flex;align-items:center;gap:6px;}
+  .chip.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .chip.on::before{content:"✓";font-size:12px;}
+
+  /* feedback quote */
+  .quote{font-size:14.5px;line-height:1.55;color:var(--ink);}
+  .qwho{display:flex;align-items:center;gap:11px;margin-bottom:12px;}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--blue);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .stars{color:var(--amber);font-size:15px;letter-spacing:1px;}
+
+  /* match cards */
+  .match{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff;box-shadow:var(--shadow);}
+  .match .head{display:flex;gap:13px;padding:16px 16px 13px;align-items:center;}
+  .match .logo{width:50px;height:50px;border-radius:14px;flex-shrink:0;font-size:20px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;}
+  .match .nm{font-size:16px;font-weight:800;line-height:1.2;}
+  .match .ad{font-size:12.5px;color:var(--ink-faint);margin-top:3px;}
+  .mscore{margin-left:auto;text-align:center;background:var(--green-tint);border-radius:12px;padding:7px 10px;}
+  .mscore .pct{font-size:18px;font-weight:800;color:var(--green-text);line-height:1;}
+  .mscore .pl{font-size:9px;font-weight:800;color:var(--green-text);text-transform:uppercase;letter-spacing:.04em;margin-top:1px;}
+  .why{background:var(--blue-tintbg);padding:11px 16px;font-size:13px;color:var(--blue-deep);display:flex;align-items:flex-start;gap:8px;line-height:1.45;font-weight:500;}
+  .match .foot{padding:13px 16px;display:flex;gap:11px;align-items:center;}
+  .match .mfacts{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--ink-soft);flex:1;}
+
+  /* confirmation */
+  .confwrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 28px;}
+  .checkc{width:92px;height:92px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;margin-bottom:24px;animation:pop .5s cubic-bezier(.2,1.3,.4,1);}
+  .checkc svg{width:46px;height:46px;}
+  @keyframes pop{0%{transform:scale(.4);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  .confwrap h2{font-size:27px;font-weight:800;letter-spacing:-.02em;margin-bottom:12px;}
+  .confwrap p.cp{font-size:15.5px;color:var(--ink-soft);line-height:1.55;max-width:300px;margin-bottom:6px;}
+  .timeline{width:100%;margin:24px 0 8px;display:flex;flex-direction:column;text-align:left;}
+  .tl{display:flex;gap:14px;}
+  .tl .marker{display:flex;flex-direction:column;align-items:center;}
+  .tl .ball{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+  .tl .ball.done{background:var(--green);color:#fff;}
+  .tl .ball.now{background:var(--blue);color:#fff;box-shadow:0 0 0 4px var(--blue-tintbg);}
+  .tl .ball.todo{background:#fff;border:2px solid var(--line);color:var(--ink-faint);}
+  .tl .stem{width:2px;flex:1;background:var(--line);min-height:26px;}
+  .tl .stem.green{background:var(--green);}
+  .tl .txt{padding-bottom:20px;}
+  .tl .txt .tt{font-size:15px;font-weight:800;}
+  .tl .txt .ts{font-size:13px;color:var(--ink-faint);margin-top:2px;}
+
+  /* tab bar */
+  .tabbar{display:flex;background:#fff;border-top:1px solid var(--line);padding:11px 6px 26px;flex-shrink:0;}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;color:var(--ink);font-weight:700;cursor:pointer;}
+  .tab svg{width:24px;height:24px;}
+  .tab.active{color:var(--blue);}
+
+  .stats-row{display:flex;gap:11px;}
+  .stat{flex:1;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);text-align:left;}
+  .stat .n{font-size:22px;font-weight:800;color:var(--ink);}
+  .stat .l{font-size:12px;color:var(--ink-faint);margin-top:3px;line-height:1.3;}
+
+  .toast{position:absolute;left:18px;right:18px;bottom:96px;background:var(--ink);color:#fff;padding:15px 17px;border-radius:14px;font-size:14.5px;font-weight:700;z-index:80;display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(10px);transition:.28s;box-shadow:0 8px 24px rgba(0,0,0,.3);pointer-events:none;}
+  .toast.show{opacity:1;transform:translateY(0);}
+
+  /* toggle */
+  .tg{position:relative;display:inline-block;width:48px;height:28px;flex-shrink:0;}
+  .tg input{opacity:0;width:0;height:0;}
+  .tg .track{position:absolute;inset:0;background:var(--blue);border-radius:20px;transition:.2s;cursor:pointer;}
+  .tg .knob{position:absolute;top:3px;left:23px;width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+
+  .caption{max-width:440px;text-align:center;color:#8C97B4;font-size:12.5px;line-height:1.55;}
+  .caption b{color:#C7D3EE;font-weight:600;}
+  svg{display:block;}
+</style>
+</head>
+<body>
+
+  <div class="stage-head">
+    <div class="eyebrow">Part 2 · Prototype</div>
+    <h1>The post-placement pathway</h1>
+    <p>Turning the moment a placement ends — when 35% of educators quietly leave — into Zen’s strongest reason to stay. Tap through the flow.</p>
+    <div class="flowmap" id="flowmap">
+      <button data-go="home" class="active">1 · The nudge</button>
+      <span class="arrow">→</span>
+      <button data-go="checkin">2 · Wrap-up</button>
+      <span class="arrow">→</span>
+      <button data-go="next">3 · What’s next</button>
+      <span class="arrow">→</span>
+      <button data-go="apply">4 · One tap</button>
+      <span class="arrow">→</span>
+      <button data-go="done">5 · Lined up</button>
+    </div>
+  </div>
+
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen">
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="right">●●●● <span>📶</span> <span>🔋</span></span>
+      </div>
+
+      <!-- ============ SCREEN 1: HOME / THE NUDGE ============ -->
+      <div class="page show" id="home">
+        <div class="scroll">
+          <div class="hdr big"><h1>Home</h1></div>
+          <div class="body" style="padding-top:8px;">
+
+            <!-- Ƶ agent leads -->
+            <div class="zbubble">
+              <div class="zmark">Ƶ</div>
+              <div class="ztext">Morning Jane — your placement at <b>Langford</b> wraps up soon. I’ve started lining up your next role so there’s no gap.</div>
+            </div>
+
+            <!-- hero countdown -->
+            <div class="next-card">
+              <div class="strip"></div>
+              <div class="inner">
+                <div class="eb">★ Your next step</div>
+                <h3>Plan your move from Langford</h3>
+                <p class="sub">You’ve been Year 1 teacher here since January. Let’s get your next role ready before this one ends.</p>
+                <div class="countdown">
+                  <div class="num">12</div>
+                  <div class="lbl"><b style="color:var(--ink);">working days left</b><br>Placement ends Fri 3 July</div>
+                </div>
+                <button class="btn btn-blue" data-go="checkin">Plan what’s next</button>
+              </div>
+            </div>
+
+            <div class="card" style="padding:16px;">
+              <div class="row">
+                <div class="ic">📅</div>
+                <div class="tx"><div class="t">Today’s booking</div><div class="s">Langford Primary · 7:00–3:00</div></div>
+                <span style="color:var(--ink-faint);font-size:22px;">›</span>
+              </div>
+            </div>
+
+            <div class="stats-row">
+              <div class="stat"><div class="n">15</div><div class="l">schools worked with</div></div>
+              <div class="stat"><div class="n">103</div><div class="l">days taught</div></div>
+              <div class="stat"><div class="n">4.9</div><div class="l">avg rating</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 21V12h6v9"/></svg>Home</div>
+          <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v18"/></svg>Supply</div>
+          <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Calendar</div>
+          <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 17l-4-4 3-3 6 6M14 7l3-3 3 3-3 3"/></svg>Jobs</div>
+          <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>More</div>
+        </div>
+      </div>
+
+      <!-- ============ SCREEN 2: WRAP-UP ============ -->
+      <div class="page" id="checkin">
+        <div class="hdr"><button class="back" data-go="home">‹</button><h1 style="font-size:21px;">Wrap up Langford</h1><span class="step">Step 1 of 2</span></div>
+        <div class="progress green"><span style="width:50%"></span></div>
+        <div class="scroll">
+          <div class="body">
+            <p class="lead">Before you move on, let’s capture what went well. It builds your record — schools see this when you apply next.</p>
+
+            <div class="card">
+              <div class="qwho">
+                <div class="avatar">L</div>
+                <div style="flex:1;">
+                  <div style="font-size:15px;font-weight:800;">Langford Primary School</div>
+                  <div class="stars">★★★★★</div>
+                </div>
+                <span class="pill pill-green">Verified</span>
+              </div>
+              <div class="quote">“Jane settled into Year 1 brilliantly. Calm with a tricky class and the parents loved her. We’d have her back in a heartbeat.”</div>
+            </div>
+
+            <div>
+              <div style="font-size:16px;font-weight:800;margin-bottom:4px;">Add to your record</div>
+              <p style="font-size:13.5px;color:var(--ink-faint);margin-bottom:12px;">Tap the strengths this placement showed. Schools filter on these.</p>
+              <div class="chips" id="chips">
+                <span class="chip on">Behaviour management</span>
+                <span class="chip on">Year 1 / KS1</span>
+                <span class="chip">Phonics</span>
+                <span class="chip on">SEN-aware</span>
+                <span class="chip">Parent relationships</span>
+                <span class="chip">Long-term cover</span>
+              </div>
+            </div>
+
+            <div class="card" style="padding:16px;">
+              <div class="row">
+                <div class="ic">🔓</div>
+                <div class="tx"><div class="t">Stay open to Langford</div><div class="s">Let them re-book you directly next term</div></div>
+                <label class="tg"><input type="checkbox" checked onchange="var t=this.parentNode;t.querySelector('.track').style.background=this.checked?'var(--blue)':'#C9D3E0';t.querySelector('.knob').style.left=this.checked?'23px':'3px';"><span class="track"></span><span class="knob"></span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="body" style="padding-top:0;"><button class="btn btn-blue" data-go="next">Find my next role</button></div>
+      </div>
+
+      <!-- ============ SCREEN 3: WHAT'S NEXT ============ -->
+      <div class="page" id="next">
+        <div class="hdr"><button class="back" data-go="checkin">‹</button><h1 style="font-size:20px;">Ready before you finish</h1><span class="step">Step 2 of 2</span></div>
+        <div class="progress"><span style="width:100%"></span></div>
+        <div class="scroll">
+          <div class="body">
+            <div class="zbubble">
+              <div class="zmark">Ƶ</div>
+              <div class="ztext">I found <b>3 strong matches</b> near you — ranked on your Langford feedback and KS1 record. Start dates all line up with when you finish.</div>
+            </div>
+
+            <div class="match">
+              <div class="head">
+                <div class="logo" style="background:#6A4FE8;">E</div>
+                <div><div class="nm">Edgefield Primary &amp; Nursery</div><div class="ad">2.1 mi · Long-term · starts 7 Jul</div></div>
+                <div class="mscore"><div class="pct">94%</div><div class="pl">match</div></div>
+              </div>
+              <div class="why">✦ Wants KS1 cover with strong behaviour management — your top two strengths from Langford.</div>
+              <div class="foot">
+                <div class="mfacts"><span>👤 Year 1 teacher · £150/day</span><span>📅 Mon–Fri · one term</span></div>
+                <button class="btn btn-blue btn-sm" data-go="apply">View role</button>
+              </div>
+            </div>
+
+            <div class="match">
+              <div class="head">
+                <div class="logo" style="background:#2FC178;">S</div>
+                <div><div class="nm">St. Mary’s C of E Primary</div><div class="ad">3.4 mi · Long-term · starts 14 Jul</div></div>
+                <div class="mscore"><div class="pct">88%</div><div class="pl">match</div></div>
+              </div>
+              <div class="why">✦ Re-book friendly — two educators from your network rated them highly.</div>
+              <div class="foot">
+                <div class="mfacts"><span>👤 KS1 teacher · £145/day</span><span>📅 Mon–Thu · two terms</span></div>
+                <button class="btn btn-white btn-sm" data-go="apply">View role</button>
+              </div>
+            </div>
+
+            <div class="match">
+              <div class="head">
+                <div class="logo" style="background:#E8804F;">H</div>
+                <div><div class="nm">Hollow Lane Academy</div><div class="ad">4.0 mi · Long-term · starts 1 Sep</div></div>
+                <div class="mscore"><div class="pct">81%</div><div class="pl">match</div></div>
+              </div>
+              <div class="why">✦ A small step up — leading phonics, with planning time built in.</div>
+              <div class="foot">
+                <div class="mfacts"><span>👤 Year 2 teacher · £155/day</span><span>📅 Mon–Fri · full year</span></div>
+                <button class="btn btn-white btn-sm" data-go="apply">View role</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ SCREEN 4: ONE-TAP APPLY ============ -->
+      <div class="page" id="apply">
+        <div class="hdr"><button class="back" data-go="next">‹</button><h1 style="font-size:20px;">Edgefield Primary</h1><span class="tag tag-blue" style="margin-left:auto;">94% match</span></div>
+        <div class="scroll">
+          <div class="body">
+            <div class="card flush">
+              <div style="height:120px;background:linear-gradient(135deg,#6A4FE8,#9B85FF);display:flex;align-items:center;justify-content:center;color:#fff;font-size:38px;font-weight:800;">E</div>
+              <div style="padding:18px;">
+                <h3 style="font-size:20px;font-weight:800;">Year 1 Teacher</h3>
+                <div style="font-size:13.5px;color:var(--ink-faint);margin-top:3px;">Edgefield Primary &amp; Nursery · 2.1 mi</div>
+                <div class="divider" style="margin:16px 0;"></div>
+                <div style="display:flex;flex-direction:column;gap:13px;">
+                  <div class="meta"><span class="mi">📅</span> Mon 7 Jul – end of term · one term</div>
+                  <div class="meta"><span class="mi">🕗</span> 7:00 AM – 3:00 PM</div>
+                  <div class="meta"><span class="mi">💷</span> £150/day <span style="color:var(--ink-faint);font-size:13px;">before deductions</span></div>
+                  <div class="meta" style="align-items:flex-start;"><span class="mi">ℹ️</span><span style="flex:1;">Small KS1 class, strong behaviour support valued.</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="zbubble">
+              <div class="zmark">Ƶ</div>
+              <div class="ztext">Your application’s already built from your record — nothing to write from scratch. Just confirm and I’ll send it.</div>
+            </div>
+
+            <div class="card" style="padding:16px;background:var(--blue-tintbg);border-color:var(--blue-tintborder);">
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div class="meta" style="font-size:14px;"><span style="color:var(--green);font-weight:800;">✓</span> Langford reference attached</div>
+                <div class="meta" style="font-size:14px;"><span style="color:var(--green);font-weight:800;">✓</span> KS1 &amp; behaviour strengths added</div>
+                <div class="meta" style="font-size:14px;"><span style="color:var(--green);font-weight:800;">✓</span> Start date matches your last day</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="body" style="padding-top:4px;"><button class="btn btn-blue" onclick="finish()">Express interest</button></div>
+        <div class="toast" id="toast">✓ Sent to Edgefield Primary</div>
+      </div>
+
+      <!-- ============ SCREEN 5: LINED UP ============ -->
+      <div class="page" id="done">
+        <div class="confwrap">
+          <div class="checkc"><svg viewBox="0 0 24 24" fill="none" stroke="#2FC178" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <h2>You’re lined up</h2>
+          <p class="cp">Edgefield has your interest — <b style="color:var(--ink);">17 days before</b> Langford even ends. No gap, no scramble.</p>
+
+          <div class="timeline">
+            <div class="tl">
+              <div class="marker"><div class="ball done">✓</div><div class="stem green"></div></div>
+              <div class="txt"><div class="tt">Langford wrap-up saved</div><div class="ts">Feedback &amp; strengths added to your record</div></div>
+            </div>
+            <div class="tl">
+              <div class="marker"><div class="ball now">2</div><div class="stem"></div></div>
+              <div class="txt"><div class="tt">Edgefield reviewing you</div><div class="ts">Usually replies within 3 days · I’ll notify you</div></div>
+            </div>
+            <div class="tl">
+              <div class="marker"><div class="ball todo">3</div></div>
+              <div class="txt"><div class="tt">Straight into your next role</div><div class="ts">Starts the Monday after Langford finishes</div></div>
+            </div>
+          </div>
+
+          <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:11px;margin-top:8px;">
+            <button class="btn btn-blue" data-go="home">Back to home</button>
+            <button class="btn btn-white" data-go="next">See other matches</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="caption">
+    Rebuilt in Zen’s current design system — bright-blue pill buttons, green progress, the <b>Ƶ assistant</b> that already ships in onboarding. The thesis made literal: <b>Zen does the work</b>, the educator just confirms.
+  </div>
+
+<script>
+  const pages=document.querySelectorAll('.page');
+  const flowBtns=document.querySelectorAll('#flowmap button');
+  function go(id){
+    pages.forEach(p=>p.classList.remove('show'));
+    const el=document.getElementById(id);el.classList.add('show');
+    el.querySelector('.scroll')?.scrollTo(0,0);
+    flowBtns.forEach(b=>b.classList.toggle('active',b.dataset.go===id));
+  }
+  document.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.go)));
+  document.querySelectorAll('#chips .chip').forEach(c=>c.addEventListener('click',()=>c.classList.toggle('on')));
+  function finish(){const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>{t.classList.remove('show');go('done');},950);}
+  window.finish=finish;window.go=go;
+</script>
+</body>
+</html>
